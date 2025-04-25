@@ -1,12 +1,17 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { Roles } from 'generated/prisma';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     
-    constructor(private jwtService: JwtService) {}
+    constructor(
+        private jwtService: JwtService,
+        private prismaService: PrismaService,
+    ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean>{
         
@@ -18,8 +23,18 @@ export class AuthGuard implements CanActivate {
         }
 
         try {
-            const payload = this.jwtService.verify<{ name: string, email: string}>(token, { algorithms: ['HS256'] });
+            const payload = this.jwtService.verify<{ name: string, email: string, role: Roles, sub: string}>(token, { algorithms: ['HS256'] });
             //TODO: pegar o usuário e adicionar na request
+
+            const user = await this.prismaService.user.findUnique({
+                where: { id: payload.sub }
+            });
+
+            if (!user) {
+                throw new UnauthorizedException('User not found');
+            }  
+
+            request.user = user;
 
             return true;
         } catch(e) {

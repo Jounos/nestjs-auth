@@ -1,39 +1,39 @@
 generator client {
-  provider     = "prisma-client-js"
-  output       = "../generated/prisma"
-  moduleFormat = "esm"
+    provider     = "prisma-client-js"
+    output       = "../generated/prisma"
+    moduleFormat = "esm"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Roles    @default(READER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Post      Post[]
+    id        String   @id @default(cuid())
+    name      String
+    email     String   @unique
+    password  String
+    role      Roles    @default(READER)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Post      Post[]
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
+    id        String   @id @default(cuid())
+    title     String
+    content   String   @db.Text
+    published Boolean  @default(false)
+    authorId  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    author    User     @relation(fields: [authorId], references: [id])
 }
 
 enum Roles {
-  ADMIN
-  READER
-  EDITOR
-  WRITER
+    ADMIN
+    READER
+    EDITOR
+    WRITER
 }

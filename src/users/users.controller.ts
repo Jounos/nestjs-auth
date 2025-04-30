@@ -1,11 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { RequiredRoles } from 'src/auth/required-roles.decorator';
+import { Roles } from 'generated/prisma';
+import { RoleGuard } from 'src/auth/role/role.guard';
 
-@UseGuards(AuthGuard)
 @Controller('users')
+@UseGuards(AuthGuard, RoleGuard)
+@RequiredRoles(Roles.ADMIN)
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
